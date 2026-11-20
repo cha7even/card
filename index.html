@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>카드 실적 확인</title>
+<style>
+:root{--bg:#eef1f6;--card:#fff;--tx:#161a20;--sub:#667085;--line:#e4e8ef;--in:#f4f6fa;--ok:#16a34a;--warn:#ea580c;--bad:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1116;--card:#1a1f27;--tx:#eef1f5;--sub:#9aa4b2;--line:#2a313b;--in:#232a34;--ok:#4ade80;--warn:#fb923c;--bad:#f87171;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1116;--card:#1a1f27;--tx:#eef1f5;--sub:#9aa4b2;--line:#2a313b;--in:#232a34;--ok:#4ade80;--warn:#fb923c;--bad:#f87171;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;line-height:1.45}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:24px;margin:0;letter-spacing:-.5px}
+.sub{color:var(--sub);font-size:13px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin:6px 0 14px;flex-wrap:wrap}
+.nav{display:flex;gap:6px;align-items:center}
+.sum{display:flex;gap:10px;margin-bottom:14px}
+.sum div{flex:1;background:var(--card);border-radius:16px;padding:12px 14px;border:1px solid var(--line)}
+.sum b{display:block;font-size:22px}
+.grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 6px 20px rgba(20,30,60,.08)}
+.hero{color:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;background-image:linear-gradient(135deg,rgba(255,255,255,.2),rgba(0,0,0,.22))}
+.hero.done{background-color:#15803d !important}
+.hn{font-size:18px;font-weight:800}
+.hs{font-size:12px;opacity:.9}
+.left{font-size:13px;opacity:.95;margin-top:10px}
+.left b{display:block;font-size:26px;letter-spacing:-.5px}
+.ring{position:relative;width:96px;height:96px;flex:none}
+.ring svg{width:96px;height:96px;transform:rotate(-90deg)}
+.ring span{position:absolute;inset:0;display:grid;place-items:center;font-size:20px;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;border-bottom:1px solid var(--line)}
+.stats div{padding:10px 4px;font-size:12px;color:var(--sub)}
+.stats b{display:block;color:var(--tx);font-size:15px}
+.body{padding:12px 14px 14px}
+.ent{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.ent .d{width:64px;color:var(--sub);font-size:13px;flex:none}
+.ent .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ent .a{font-weight:700}
+.none{color:var(--sub);font-size:13px;padding:8px 0}
+.add{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;background:var(--in);border-radius:14px;padding:10px}
+.add .w{grid-column:1/-1}
+input,select,button{font:inherit;color:var(--tx)}
+input,select{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0;width:100%}
+button{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 13px;cursor:pointer}
+button.p{background:#2563eb;border-color:#2563eb;color:#fff;font-weight:700}
+button.g{border:none;background:none;color:var(--sub);padding:4px 7px;font-size:12px}
+.hero button.g{color:#fff;background:rgba(255,255,255,.2);border-radius:8px}
+button.d{color:var(--bad)}
+.form{display:grid;gap:8px;padding:14px}.form label{font-size:13px;color:var(--sub);display:grid;gap:4px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.msg{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:50;background:var(--card);border:1px solid var(--warn);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--warn);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.empty{text-align:center;color:var(--sub);padding:28px 8px}
+
+.login{max-width:420px;margin:12vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 6px 20px rgba(20,30,60,.08)}
+.login h2{margin:0 0 8px;font-size:20px}.login p{color:var(--sub);font-size:13px;margin:0 0 16px}.login label{display:grid;gap:5px;margin:12px 0;font-size:13px;color:var(--sub)}
+.login button{width:100%;margin-top:8px;padding:12px}.authbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--sub)}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<main>
+  <section id="loginPanel" class="login">
+    <h2>🔐 관리자 로그인</h2>
+    <p>카드 실적 데이터는 관리자 계정으로 로그인한 경우에만 열람하고 수정할 수 있습니다.</p>
+    <label>관리자 이메일<input id="loginEmail" type="email" autocomplete="username" placeholder="관리자 이메일"></label>
+    <label>비밀번호<input id="loginPassword" type="password" autocomplete="current-password" placeholder="비밀번호"></label>
+    <button class="p" id="loginBtn">로그인</button>
+    <div id="loginMsg" class="sub" style="margin-top:10px" role="status"></div>
+  </section>
+  <div id="appContent" hidden>
+  <div class="authbar"><span id="signedInAs"></span><button id="logoutBtn" class="g">로그아웃</button></div>
+  <div class="top">
+    <div><h1>💳 카드 실적</h1><div class="sub" id="status">불러오는 중…</div></div>
+    <div class="nav"><button id="prev">‹ 이전</button><button id="now" class="g" hidden>현재로</button><button id="next">다음 ›</button></div>
+  </div>
+  <div id="msg" class="msg" hidden></div>
+  <div id="sum" class="sum"></div>
+  <div id="list" class="grid"></div>
+  <button class="p" id="add" style="width:100%;margin-top:16px;padding:13px">+ 카드 추가</button>
+  </div>
+</main>
+<script>
+// 실제 접근 제어는 Firebase Authentication 및 Firestore 보안 규칙으로 강제합니다.
+var data={cards:[],entries:[]},offset=0,editing=null,eEdit=null,pendingRender=false,delArm=null,db=null,auth=null,saveT=null,loaded=false,dirty=false,inflight=false,adminUid="9WFupi7gEJMuys39ig9UwphCyvD2";
+var COL=["#2563eb","#7c3aed","#db2777","#ea580c","#0d9488","#4f46e5","#ca8a04","#0891b2"];
+var $=function(s){return document.querySelector(s)};
+var won=function(n){return Math.round(n).toLocaleString("ko-KR")+"원"};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+var idx=function(ym){var p=ym.split("-");return +p[0]*12+ +p[1]-1};
+var ym=function(i){return Math.floor(i/12)+"-"+String(i%12+1).padStart(2,"0")};
+var now=new Date(),cur=now.getFullYear()*12+now.getMonth();
+var pad=function(n){return String(n).padStart(2,"0")};
+var today=now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate());
+var DOW=["일","월","화","수","목","금","토"];
+function period(c){
+  if(c.kind==="m")return{s:cur+offset,n:1};
+  var s=idx(c.start||ym(cur));
+  return{s:s+3*(Math.floor((cur-s)/3)+offset),n:3};
+}
+function inP(e,p){var i=idx(e.date.slice(0,7));return i>=p.s&&i<p.s+p.n}
+function fdate(d){var t=new Date(d+"T00:00:00");return pad(t.getMonth()+1)+"/"+pad(t.getDate())+" ("+DOW[t.getDay()]+")"}
+function save(){
+  try{render()}catch(e){showMsg("화면 표시 오류: "+e.message)}
+  if(!db||!auth||!auth.currentUser||auth.currentUser.uid!==adminUid){showMsg("관리자 로그인 상태를 확인해 주세요.");return}
+  dirty=true; clearTimeout(saveT);
+  saveT=setTimeout(function(){
+    dirty=false;inflight=true;
+    db.collection("tracker").doc("main").set(JSON.parse(JSON.stringify(data))).then(function(){inflight=false;$("#status").textContent="모든 기기에 자동 저장돼요"}).catch(function(e){inflight=false;showMsg("저장 실패: "+((e&&(e.code||e.message))||"알 수 없는 오류"))});
+  },300);
+}
+function showMsg(t){var m=$("#msg");m.textContent=t;m.hidden=!t}
+function stat(c){
+  var p=period(c),t=Number(c.target)||0,es=data.entries.filter(function(e){return e.card===c.id&&inP(e,p)}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0});
+  var sum=es.reduce(function(a,e){return a+(Number(e.amt)||0)},0);
+  return{p:p,t:t,es:es,sum:sum,left:Math.max(0,t-sum),pct:t?Math.min(100,sum/t*100):0,done:t>0&&sum>=t};
+}
+function render(){
+  var h="",dn=0,all=data.cards.map(stat);
+  all.forEach(function(s){if(s.done)dn++});
+  $("#now").hidden=offset===0;
+  $("#sum").innerHTML=data.cards.length?'<div><span class="sub">전체 카드</span><b>'+data.cards.length+'장</b></div><div><span class="sub">실적 달성</span><b style="color:var(--ok)">'+dn+'장</b></div><div><span class="sub">남은 카드</span><b style="color:var(--warn)">'+(data.cards.length-dn)+'장</b></div>':"";
+  if(!data.cards.length&&editing!=="new")h='<div class="empty">등록된 카드가 없어요.<br>아래 버튼으로 카드를 추가해 주세요.</div>';
+  data.cards.forEach(function(c,i){h+=editing===c.id?'<div class="card">'+formHtml(c)+'</div>':cardHtml(c,all[i],i)});
+  if(editing==="new")h+='<div class="card">'+formHtml(null)+'</div>';
+  $("#list").innerHTML=h;
+}
+function cardHtml(c,s,i){
+  var p=s.p,col=COL[i%COL.length],R=42,C=2*Math.PI*R;
+  var label=p.n===3?ym(p.s).replace("-",".")+" ~ "+ym(p.s+2).replace("-","."):ym(p.s).replace("-","년 ")+"월";
+  var end=new Date(Math.floor((p.s+p.n)/12),(p.s+p.n)%12,0),dd=Math.ceil((end-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/864e5);
+  var live=p.s<=cur&&cur<p.s+p.n,dtxt=live?"D-"+dd:(p.s+p.n<=cur?"종료":"예정");
+  var ee=eEdit&&eEdit.card===c.id?data.entries.filter(function(e){return e.id===eEdit.id})[0]:null;
+  var list=s.es.map(function(e){return '<div class="ent"><span class="d">'+fdate(e.date)+'</span><span class="t">'+esc(e.memo||"")+'</span><span class="a">'+won(e.amt)+'</span><button class="g" data-act="eedit" data-id="'+e.id+'">수정</button><button class="g d" data-act="edel" data-id="'+e.id+'">삭제</button></div>'}).join("")||'<div class="none">이 기간에 입력한 내역이 없어요.</div>';
+  return '<div class="card"><div class="hero'+(s.done?" done":"")+'" style="background-color:'+col+'"><div style="min-width:0"><div class="hn">'+esc(c.name)+'</div><div class="hs">'+(c.kind==="m"?"매월":"3개월")+' · '+label+'</div>'
+  +'<div class="left">'+(s.done?'<b>실적 달성 ✓</b>목표를 채웠어요':'앞으로 더 써야 할 금액<b>'+won(s.left)+'</b>')+'</div></div>'
+  +'<div style="display:grid;gap:8px;justify-items:center"><div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="'+R+'" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="9"/><circle cx="50" cy="50" r="'+R+'" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(C*s.pct/100)+' '+C+'"/></svg><span>'+Math.round(s.pct)+'%</span></div><button class="g" data-act="edit" data-id="'+c.id+'">설정</button></div></div>'
+  +'<div class="stats"><div>사용 합계<b>'+won(s.sum)+'</b></div><div>목표<b>'+won(s.t)+'</b></div><div>마감<b>'+dtxt+'</b></div></div>'
+  +'<div class="body">'+list
+  +'<div class="add"><input type="date" value="'+(ee?ee.date:today)+'" data-f="date" data-c="'+c.id+'"><input type="number" inputmode="numeric" min="0" placeholder="금액(원)" value="'+(ee?ee.amt:"")+'" data-f="amt" data-c="'+c.id+'"><input class="w" placeholder="메모 (선택, 예: 마트)" value="'+(ee?esc(ee.memo||""):"")+'" data-f="memo" data-c="'+c.id+'" style="grid-column:1/-1"><button class="p w" style="grid-column:1/-1" data-act="addE" data-id="'+c.id+'">'+(ee?"수정 완료":"+ 사용 내역 추가")+'</button>'+(ee?'<button class="w" style="grid-column:1/-1" data-act="ecancel">취소</button>':"")+'</div></div></div>';
+}
+function formHtml(c){
+  var n=c||{id:"",name:"",kind:"m",target:"",start:ym(cur)},isNew=!c;
+  return '<div class="form">'
+  +'<label>카드 이름<input id="f-name" value="'+esc(n.name)+'" placeholder="예: 아빠 농협카드"></label>'
+  +'<label>기준<select id="f-kind"><option value="m"'+(n.kind==="m"?" selected":"")+'>매월 기준</option><option value="q"'+(n.kind==="q"?" selected":"")+'>3개월 단위 기준</option></select></label>'
+  +'<label>목표 사용금액 (원)<input id="f-target" type="number" inputmode="numeric" min="0" value="'+esc(n.target)+'" placeholder="예: 300000"></label>'
+  +'<label>3개월 기간 시작월 (3개월 기준일 때)<input id="f-start" type="month" value="'+esc(n.start||ym(cur))+'"></label>'
+  +'<div class="row"><div>'+(isNew?"":'<button class="g d" data-act="del" data-id="'+c.id+'">'+(delArm===c.id?"정말 삭제":"삭제")+'</button>')+'</div><div><button data-act="cancel">취소</button> <button class="p" data-act="saveCard" data-id="'+n.id+'">저장</button></div></div></div>';
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.id==="prev"){offset--;return render()}
+  if(b.id==="next"){offset++;return render()}
+  if(b.id==="now"){offset=0;return render()}
+  if(b.id==="add"){editing="new";return render()}
+  var a=b.dataset.act,id=b.dataset.id;if(!a)return;
+  if(a==="edit"){editing=id;delArm=null;render()}
+  else if(a==="cancel"){editing=null;delArm=null;render()}
+  else if(a==="del"){if(delArm!==id){delArm=id;render()}else{data.cards=data.cards.filter(function(c){return c.id!==id});data.entries=data.entries.filter(function(x){return x.card!==id});editing=null;delArm=null;save()}}
+  else if(a==="saveCard"){
+    var o={name:$("#f-name").value.trim()||"이름 없는 카드",kind:$("#f-kind").value,target:Number($("#f-target").value)||0,start:$("#f-start").value||ym(cur)};
+    if(id){data.cards=data.cards.map(function(c){return c.id===id?Object.assign({},c,o):c})}
+    else{o.id="c"+Date.now().toString(36);data.cards.push(o)}
+    editing=null;save();
+  }
+  else if(a==="eedit"){var en=data.entries.filter(function(x){return x.id===id})[0];if(en){eEdit={card:en.card,id:id};render()}}
+  else if(a==="ecancel"){eEdit=null;render()}
+  else if(a==="edel"){data.entries=data.entries.filter(function(x){return x.id!==id});if(eEdit&&eEdit.id===id)eEdit=null;save()}
+  else if(a==="addE"){
+    var q=function(f){return document.querySelector('[data-f="'+f+'"][data-c="'+id+'"]')};
+    var date=q("date").value,amt=Number(q("amt").value),memo=q("memo").value.trim();
+    if(!date||!(amt>0)){showMsg("날짜와 금액을 입력해 주세요.");return}
+    showMsg("");
+    if(eEdit&&eEdit.card===id){data.entries=data.entries.map(function(x){return x.id===eEdit.id?{id:x.id,card:id,date:date,amt:amt,memo:memo}:x});eEdit=null}
+    else data.entries.push({id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),card:id,date:date,amt:amt,memo:memo});
+    var c=data.cards.filter(function(x){return x.id===id})[0];
+    if(!inP({date:date},period(c)))showMsg("입력한 날짜는 지금 보고 있는 기간 밖이에요. ‹ › 버튼으로 해당 기간을 확인해 보세요.");
+    save();
+  }
+});
+document.addEventListener("focusout",function(){setTimeout(function(){if(pendingRender&&!editing&&!eEdit&&!(document.activeElement&&document.activeElement.tagName==="INPUT")){pendingRender=false;render()}},50)});
+function load(d){
+  d=JSON.parse(JSON.stringify(d));
+  data={cards:d.cards||[],entries:d.entries||[]};
+  var u=d.usage||{};
+  Object.keys(u).forEach(function(cid){Object.keys(u[cid]||{}).forEach(function(k){var v=Number(u[cid][k]);if(v>0)data.entries.push({id:"mig-"+cid+"-"+k,card:cid,date:k+"-01",amt:v,memo:"기존 월별 입력"})})});
+}
+window.addEventListener("error",function(e){showMsg("오류: "+e.message)});
+$("#msg").addEventListener("click",function(){showMsg("")});
+render();
+// Firebase 웹 앱 설정값
+var firebaseConfig={
+  apiKey:"AIzaSyDDVg8_byTLABiQLOzFo8pxFw3hKYPsNEo",
+  authDomain:"card-performance-manager.firebaseapp.com",
+  projectId:"card-performance-manager",
+  storageBucket:"card-performance-manager.firebasestorage.app",
+  messagingSenderId:"952083616564",
+  appId:"1:952083616564:web:28ea209174ff54f3b54b61"
+};
+function loginMessage(t){$("#loginMsg").textContent=t||""}
+function startDataSync(){
+  if(!db)return;
+  $("#status").textContent="데이터 불러오는 중…";
+  db.collection("tracker").doc("main").onSnapshot(function(s){
+    if(s.metadata&&s.metadata.hasPendingWrites)return;
+    loaded=true;$("#status").textContent="모든 기기에 자동 저장돼요";
+    if(dirty||inflight)return;
+    if(!s.exists){data={cards:[],entries:[]};render();return}
+    var before=JSON.stringify(data);load(s.data());
+    if(JSON.stringify(data)!==before){if(editing||eEdit||(document.activeElement&&document.activeElement.tagName==="INPUT")){pendingRender=true}else render()}
+  },function(e){$("#status").textContent="연결 오류";showMsg("데이터를 불러오지 못했어요: "+(e.message||e.code))});
+}
+try{
+  if(firebaseConfig.apiKey==="YOUR_FIREBASE_API_KEY")throw new Error("Firebase 설정이 아직 입력되지 않았습니다.");
+  firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
+  $("#loginBtn").addEventListener("click",function(){
+    var email=$("#loginEmail").value.trim(),pw=$("#loginPassword").value;
+    if(!email||!pw){loginMessage("이메일과 비밀번호를 입력해 주세요.");return}
+    loginMessage("로그인 중…");
+    auth.signInWithEmailAndPassword(email,pw).catch(function(e){loginMessage("로그인 실패: "+(e.message||e.code))});
+  });
+  $("#loginPassword").addEventListener("keydown",function(e){if(e.key==="Enter")$("#loginBtn").click()});
+  $("#logoutBtn").addEventListener("click",function(){auth.signOut()});
+  auth.onAuthStateChanged(function(user){
+    if(user&&user.uid===adminUid){$("#loginPanel").hidden=true;$("#appContent").hidden=false;$("#signedInAs").textContent=user.email||"관리자";loginMessage("");startDataSync();}
+    else {if(user)auth.signOut();$("#appContent").hidden=true;$("#loginPanel").hidden=false;$("#status").textContent="로그인이 필요합니다";if(user)loginMessage("관리자 권한이 없는 계정입니다.");}
+  });
+}catch(e){loginMessage("초기 설정 필요: "+e.message);$("#loginBtn").disabled=true;}
+
+</script>
+</body>
+</html>
